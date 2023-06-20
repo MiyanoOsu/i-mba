@@ -432,9 +432,7 @@ void SaveState(char* tmp, uint_fast8_t load)
 }
 
 int main(int argc, char* argv[])
-{
-	uint_fast8_t ret;
-	
+{	
     printf("Starting project Alpha\n");
     
     if (argc < 2)
@@ -450,7 +448,7 @@ int main(int argc, char* argv[])
 	Audio_Init();
 	
 	Init_Video();
-	ret = CPULoadRom(argv[1]);
+	CPULoadRom(argv[1]);
 	/* We need a more reliable way than that... */
 	/*if (ret < 1)
 	{

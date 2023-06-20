@@ -580,7 +580,6 @@ INLINE void Gb_Wave::write_register( int frame_phase, int reg, int old_data, int
 			break;
 
 		case 4:
-			bool was_enabled = enabled;
 			if ( write_trig( frame_phase, 256, old_data ) )
 			{
 				if ( !GB_WAVE_DAC_ENABLED() )

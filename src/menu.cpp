@@ -28,7 +28,6 @@ extern char GameName_emu[256];
 extern void EEPROM_file(char* path, uint_fast8_t state);
 extern void SaveState(char* path, uint_fast8_t state);
 
-static uint8_t selectpressed = 0;
 static uint8_t save_slot = 0;
 
 #define IPU_OFFSET 0
@@ -76,8 +75,8 @@ static void config_load()
 		option.config_buttons[2] = SDLK_LEFT;
 		option.config_buttons[3] = SDLK_RIGHT;
 		
-		option.config_buttons[4] = SDLK_LCTRL;
-		option.config_buttons[5] = SDLK_LALT;
+		option.config_buttons[4] = SDLK_LALT;
+		option.config_buttons[5] = SDLK_LCTRL;
 		option.config_buttons[6] = SDLK_TAB;
 		option.config_buttons[7] = SDLK_BACKSPACE;
 		
@@ -127,11 +126,11 @@ static const char* Return_Text_Button(uint32_t button)
 			return "DPAD RIGHT";
 		break;
 		/* A button */
-		case 306:
+		case 308:
 			return "A button";
 		break;
 		/* B button */
-		case 308:
+		case 306:
 			return "B button";
 		break;
 		/* X button */
@@ -218,14 +217,14 @@ static void Input_Remapping()
 							currentselection = 1;
 						}
                         break;
-                    case SDLK_LCTRL:
+                    case SDLK_LALT:
                     case SDLK_RETURN:
                         pressed = 1;
 					break;
                     case SDLK_ESCAPE:
                         option.config_buttons[currentselection - 1] = 0;
 					break;
-                    case SDLK_LALT:
+                    case SDLK_LCTRL:
                         exit_input = 1;
 					break;
                     case SDLK_LEFT:
@@ -370,9 +369,6 @@ void Menu()
 			case 2:
 				print_string("Scaling : Native", (currentselection == 4) ? TextRed : TextWhite, 0, 5, 105, (uint16_t*) backbuffer->pixels);
 			break;
-			case 3:
-				print_string("Scaling : EPX/Scale2x", (currentselection == 4) ? TextRed : TextWhite, 0, 5, 105, (uint16_t*) backbuffer->pixels);
-			break;
 		}
 
 		print_string("Input remapping", (currentselection == 5-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 125-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
@@ -399,11 +395,11 @@ void Menu()
                         break;
                     case SDLK_END:
                     case SDLK_RCTRL:
-                    case SDLK_LALT:
+                    case SDLK_LCTRL:
 						pressed = 1;
 						currentselection = 1;
 						break;
-                    case SDLK_LCTRL:
+                    case SDLK_LALT:
                     case SDLK_RETURN:
                         pressed = 1;
                         break;
@@ -488,20 +484,6 @@ void Menu()
 	emulator_state = 0;
 	Set_Video_InGame();
 
-}
-
-static void Cleanup(void)
-{
-#ifdef SCALE2X_UPSCALER
-	if (scale2x_buf) SDL_FreeSurface(scale2x_buf);
-#endif
-	if (sdl_screen) SDL_FreeSurface(sdl_screen);
-	if (backbuffer) SDL_FreeSurface(backbuffer);
-
-	// Deinitialize audio and video output
-	Audio_Close();
-	
-	SDL_Quit();
 }
 
 void Init_Configuration()

@@ -21,7 +21,7 @@ LDFLAGS = -Ofast -flto=4 -fwhole-program -fuse-linker-plugin \
 	  -fno-stack-protector -fomit-frame-pointer\
 	  -falign-functions=1 -falign-jumps=1 -falign-loops=1 \
 	  -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-unroll-loops -fmerge-all-constants \
-	  -lc -lgcc -lm -lSDL -lasound -lz -pthread -flto -Wl,--as-needed -Wl,--gc-sections  
+	  -lc -lgcc -lm -lSDL -lasound -lz -pthread -flto -Wl,--as-needed -Wl,--gc-sections 
 
 all: $(TARGET)
 
