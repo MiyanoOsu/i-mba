@@ -31,15 +31,10 @@ extern void SaveState(char* path, uint_fast8_t state);
 static uint8_t selectpressed = 0;
 static uint8_t save_slot = 0;
 
-#ifdef IPU_SCALE
-#define IPU_OFFSET 1
-#define IPU_OFFSET_Y 20
-static const int8_t upscalers_available = 1
-#else
 #define IPU_OFFSET 0
 #define IPU_OFFSET_Y 0
 static const int8_t upscalers_available = 2
-#endif
+
 #ifdef SCALE2X_UPSCALER
 +1
 #endif
@@ -94,11 +89,6 @@ static void config_load()
 
 		/* Set default to keep aspect */
 		option.fullscreen = 2;
-		#if USE_FRAME_SKIP
-		option.frameskip = 6;
-		#else
-		option.frameskip = 3;
-		#endif
 	}
 }
 
@@ -335,11 +325,7 @@ static void Input_Remapping()
 	config_save();
 }
 
-#ifdef USE_FRAME_SKIP
-#define EXIT_NUMBER 7-IPU_OFFSET
-#else
 #define EXIT_NUMBER 6-IPU_OFFSET
-#endif
 
 void Menu()
 {
@@ -372,8 +358,7 @@ void Menu()
 		snprintf(text, sizeof(text), "Save State %d", save_slot);
 		
 		print_string(text, (currentselection == 3) ? TextRed : TextWhite, 0, 5, 85, (uint16_t*) backbuffer->pixels);
-		
-		#ifndef IPU_SCALE
+
         switch(option.fullscreen)
 		{
 			case 0:
@@ -389,40 +374,10 @@ void Menu()
 				print_string("Scaling : EPX/Scale2x", (currentselection == 4) ? TextRed : TextWhite, 0, 5, 105, (uint16_t*) backbuffer->pixels);
 			break;
 		}
-		#endif
-		
-		
+
 		print_string("Input remapping", (currentselection == 5-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 125-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-		
-		#ifdef USE_FRAME_SKIP
-        switch(option.frameskip)
-		{
-			case 0:
-				print_string("Frameskip : None", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 1:
-				print_string("Frameskip : 1/3", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 2:
-				print_string("Frameskip : 1/2", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 3:
-				print_string("Frameskip : 2", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 4:
-				print_string("Frameskip : 3", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 5:
-				print_string("Frameskip : 4", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-			case 6:
-				print_string("Frameskip : Auto", (currentselection == 6-IPU_OFFSET) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-			break;
-		}
-		print_string("Quit", (currentselection == EXIT_NUMBER) ? TextRed : TextWhite, 0, 5, 165-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-		#else
+	
 		print_string("Quit", (currentselection == EXIT_NUMBER) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
-		#endif
 		
 		print_string("Credits: MiyanoOsu", TextWhite, 0, 5, 225, (uint16_t*) backbuffer->pixels);
 
@@ -459,20 +414,11 @@ void Menu()
                             case 3:
                                 if (save_slot > 0) save_slot--;
 							break;
-							#ifndef IPU_SCALE
                             case 4:
 							option.fullscreen--;
 							if (option.fullscreen < 0)
 								option.fullscreen = upscalers_available;
 							break;
-							#endif
-							#ifdef USE_FRAME_SKIP
-							case 6-IPU_OFFSET:
-								option.frameskip--;
-								if (option.frameskip < 0)
-									option.frameskip = 6;
-							break;
-							#endif
                         }
                         break;
                     case SDLK_RIGHT:
@@ -484,20 +430,11 @@ void Menu()
 								if (save_slot == 10)
 									save_slot = 9;
 							break;
-							#ifndef IPU_SCALE
                             case 4:
                                 option.fullscreen++;
                                 if (option.fullscreen > upscalers_available)
                                     option.fullscreen = 0;
 							break;
-							#endif
-							#ifdef USE_FRAME_SKIP
-							case 6-IPU_OFFSET:
-								option.frameskip++;
-								if (option.frameskip > 6)
-									option.frameskip = 0;
-							break;
-							#endif
                         }
                         break;
 					default:
@@ -518,13 +455,11 @@ void Menu()
 				case 5-IPU_OFFSET:
 					Input_Remapping();
 				break;
-				#ifndef IPU_SCALE
                 case 4-IPU_OFFSET:
                     option.fullscreen++;
                     if (option.fullscreen > upscalers_available)
                         option.fullscreen = 0;
                     break;
-				#endif
                 case 2 :
                     SaveState_Menu(1, save_slot);
 					currentselection = 1;
@@ -552,10 +487,7 @@ void Menu()
 	/* Switch back to emulator core */
 	emulator_state = 0;
 	Set_Video_InGame();
-	
-	#ifdef USE_FRAME_SKIP
-	SetFrameskip(get_frameskip_code());
-	#endif
+
 }
 
 static void Cleanup(void)

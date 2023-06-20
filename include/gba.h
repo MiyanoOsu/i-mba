@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "GBACheats.h"
-#include "thread.h"
 
 #define BITS_16 0
 #define BITS_32 1
@@ -112,15 +111,6 @@ extern void CPUReset (void);
 extern void CPULoop(void);
 extern void UpdateJoypad(void);
 extern void CPUCheckDMA(int,int);
-#if USE_FRAME_SKIP || FORCE_FRAMESKIP
-extern void SetFrameskip(int);
-extern int get_frameskip_code();
-#endif
-
-#if THREADED_RENDERER
-extern void ThreadedRendererStart();
-extern void ThreadedRendererStop();
-#endif
 
 #if USE_MOTION_SENSOR
 
