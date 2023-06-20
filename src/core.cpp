@@ -75,16 +75,6 @@ void adjust_save_ram()
       flashSaveMemory = libretro_save_buf;
 }
 
-void alpha_init(void)
-{
-   memset(libretro_save_buf, 0xff, sizeof(libretro_save_buf));
-   //adjust_save_ram();
-
-#if THREADED_RENDERER
-	ThreadedRendererStart();
-#endif
-}
-
 static unsigned serialize_size = 0;
 
 typedef struct  {
@@ -244,40 +234,6 @@ static void load_image_preferences (void)
 	}
 }
 
-#if USE_FRAME_SKIP
-int get_frameskip_code()
-{
-	/*if (strcmp(var.value, "1/3") == 0) return 0x13;
-	if (strcmp(var.value, "1/2") == 0) return 0x12;
-	if (strcmp(var.value, "1") == 0) return 0x1;
-	if (strcmp(var.value, "2") == 0) return 0x2;
-	if (strcmp(var.value, "3") == 0) return 0x3;
-	if (strcmp(var.value, "4") == 0) return 0x4;*/
-	switch(option.frameskip)
-	{
-		case 1:
-			return 0x13;
-		break;
-		case 2:
-			return 0x12;
-		break;
-		case 3:
-			return 0x2;
-		break;
-		case 4:
-			return 0x3;
-		break;
-		case 5:
-			return 0x4;
-		break;
-		default:
-			return 0x0;
-		break;
-	}
-	return 0x0;
-}
-#endif
-
 static void gba_init(void)
 {
    cpuSaveType = 0;
@@ -306,49 +262,23 @@ static void gba_init(void)
    serialize_size = CPUWriteState(state_buf, 2000000);
    free(state_buf);
    state_buf = NULL;
-#if USE_FRAME_SKIP
-	SetFrameskip(get_frameskip_code());
-#endif
+   memset(libretro_save_buf, 0xff, sizeof(libretro_save_buf));
 }
 
-void alpha_deinit(void)
+void gba_deinit(void)
 {
-#if THREADED_RENDERER
-	ThreadedRendererStop();
-#endif
 	CPUCleanUp();
 }
 
-void alpha_reset(void)
+void gba_reset(void)
 {
    CPUReset();
 }
 
 static unsigned has_frame;
 
-/*
-#if USE_FRAME_SKIP
-   SetFrameskip(get_frameskip_code());
-#endif
-*/
-
-#ifdef USE_FRAME_SKIP
-static uint32_t Timer_Read(void) 
+void gba_run(void)
 {
-	/* Timing. */
-	struct timeval tval;
-  	gettimeofday(&tval, 0);
-	return (((tval.tv_sec*1000000) + (tval.tv_usec)));
-}
-static long lastTick = 0, newTick;
-static uint32_t video_frames = 0, FPS = 60;
-#endif
-
-void alpha_run(void)
-{
-#ifdef USE_FRAME_SKIP
-	newTick = Timer_Read();
-#endif
 
    joy = update_input();
 
@@ -359,32 +289,7 @@ void alpha_run(void)
    {
       CPULoop();
    }while (!has_frame);
-   
-#ifdef USE_FRAME_SKIP
-	extern bool fs_draw;
-	if (option.frameskip == 6)
-	{
-		if (fs_draw == true) video_frames++;
-		if ( (newTick) - (lastTick) > 1000000) 
-		{
-			FPS = video_frames;
-			video_frames = 0;
-			lastTick = newTick;
-			if (FPS > 60)
-			{
-				SetFrameskip(0x0);
-			}
-			else
-			{
-				if (FPS > 55) SetFrameskip(0x2);
-				else if (FPS > 45) SetFrameskip(0x3);
-				else SetFrameskip(0x4);
-			}
-		}
-	}
-#elif defined(FORCE_FRAMESKIP)
-	SetFrameskip(FORCE_FRAMESKIP);
-#endif
+
 }
 
 void alpha_cheat_reset(void)
@@ -545,10 +450,6 @@ int main(int argc, char* argv[])
 	Audio_Init();
 	
 	Init_Video();
-	
-#if USE_FRAME_SKIP
-	SetFrameskip(get_frameskip_code());
-#endif
 	ret = CPULoadRom(argv[1]);
 	/* We need a more reliable way than that... */
 	/*if (ret < 1)
@@ -557,8 +458,6 @@ int main(int argc, char* argv[])
 		return 0;
 	}*/
 	gba_init();
-	
-	alpha_init();
 	
 	/* This needs to be loaded after everything is created. Used to be it in Init_Configuration 
 	* but some ports required the config file to be loaded before setting up the surface.
@@ -570,7 +469,7 @@ int main(int argc, char* argv[])
 		switch(emulator_state)
 		{
 			case 0:
-				alpha_run();
+				gba_run();
 			break;
 			case 1:
 				Menu();
@@ -578,7 +477,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	
-	alpha_deinit();
-    Audio_Close();
+	gba_deinit();
+	Audio_Close();
 	Close_Video();
 }

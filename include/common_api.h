@@ -8,8 +8,8 @@ However, we want to support building this library as C++ as well, so a
 special technique is called for.
 */
 
-#define RETRO_BEGIN_DECLS
-#define RETRO_END_DECLS
+#define BEGIN_DECLS
+#define END_DECLS
 
 #ifdef __cplusplus
 
