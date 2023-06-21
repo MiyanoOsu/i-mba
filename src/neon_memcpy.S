@@ -24,7 +24,7 @@
  * ordered/device memory.
  */
 
-#define ENABLE_UNALIGNED_MEM_ACCESSES 1
+#define ENABLE_UNALIGNED_MEM_ACCESSES 0
 
 #define NEON_MAX_PREFETCH_DISTANCE 320
 

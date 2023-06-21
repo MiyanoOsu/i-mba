@@ -5,7 +5,7 @@ CROSS_COMPILE = /opt/miyoo/bin/arm-linux-
 CC = $(CROSS_COMPILE)gcc
 
 OBJS = gba.o memory.o sound.o system.o sound_output.o core.o input.o \
-	font_drawing.o menu.o scaler.o video_blit.o memalign.o neon_memcpy.o
+	font_drawing.o menu.o scaler.o video_blit.o arm_memalign.o neon_memcpy.o
 
 VPATH = ./src
 
