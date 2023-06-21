@@ -32,9 +32,9 @@ uint32_t done = 0;
 
 char filename_bios[0x100] = {0};
 
-uint8_t libretro_save_buf[0x20000 + 0x2000];	/* Workaround for broken-by-design GBA save semantics. */
+uint8_t save_buf[0x20000 + 0x2000];	/* Workaround for broken-by-design GBA save semantics. */
 
-static unsigned libretro_save_size = sizeof(libretro_save_buf);
+static unsigned save_size = sizeof(save_buf);
 
 static uint_fast8_t scan_area(const uint8_t *data, unsigned size)
 {
@@ -47,32 +47,32 @@ static uint_fast8_t scan_area(const uint8_t *data, unsigned size)
 
 void adjust_save_ram()
 {
-   if (scan_area(libretro_save_buf, 512) &&
-         !scan_area(libretro_save_buf + 512, sizeof(libretro_save_buf) - 512))
+   if (scan_area(save_buf, 512) &&
+         !scan_area(save_buf + 512, sizeof(save_buf) - 512))
    {
-      libretro_save_size = 512;
+      save_size = 512;
    }
-   else if (scan_area(libretro_save_buf, 0x2000) && 
-         !scan_area(libretro_save_buf + 0x2000, sizeof(libretro_save_buf) - 0x2000))
+   else if (scan_area(save_buf, 0x2000) && 
+         !scan_area(save_buf + 0x2000, sizeof(save_buf) - 0x2000))
    {
-      libretro_save_size = 0x2000;
-   }
-
-   else if (scan_area(libretro_save_buf, 0x10000) && 
-         !scan_area(libretro_save_buf + 0x10000, sizeof(libretro_save_buf) - 0x10000))
-   {
-      libretro_save_size = 0x10000;
-   }
-   else if (scan_area(libretro_save_buf, 0x20000) && 
-         !scan_area(libretro_save_buf + 0x20000, sizeof(libretro_save_buf) - 0x20000))
-   {
-      libretro_save_size = 0x20000;
+      save_size = 0x2000;
    }
 
-   if (libretro_save_size == 512 || libretro_save_size == 0x2000)
-      eepromData = libretro_save_buf;
-   else if (libretro_save_size == 0x10000 || libretro_save_size == 0x20000)
-      flashSaveMemory = libretro_save_buf;
+   else if (scan_area(save_buf, 0x10000) && 
+         !scan_area(save_buf + 0x10000, sizeof(save_buf) - 0x10000))
+   {
+      save_size = 0x10000;
+   }
+   else if (scan_area(save_buf, 0x20000) && 
+         !scan_area(save_buf + 0x20000, sizeof(save_buf) - 0x20000))
+   {
+      save_size = 0x20000;
+   }
+
+   if (save_size == 512 || save_size == 0x2000)
+      eepromData = save_buf;
+   else if (save_size == 0x10000 || save_size == 0x20000)
+      flashSaveMemory = save_buf;
 }
 
 static unsigned serialize_size = 0;
@@ -262,7 +262,7 @@ static void gba_init(void)
    serialize_size = CPUWriteState(state_buf, 2000000);
    free(state_buf);
    state_buf = NULL;
-   memset(libretro_save_buf, 0xff, sizeof(libretro_save_buf));
+   memset(save_buf, 0xff, sizeof(save_buf));
 }
 
 void gba_deinit(void)
@@ -391,13 +391,13 @@ void EEPROM_file(char* tmp, uint_fast8_t load)
 		case 0:
 			fp = fopen(tmp, "wb");
 			if (!fp) return;
-			fwrite(libretro_save_buf, sizeof(uint8_t), libretro_save_size, fp);
+			fwrite(save_buf, sizeof(uint8_t), save_size, fp);
 			fclose(fp);
 		break;
 		case 1:
 			fp = fopen(tmp, "rb");
 			if (!fp) return;
-			fread(libretro_save_buf, sizeof(uint8_t), libretro_save_size, fp);
+			fread(save_buf, sizeof(uint8_t), save_size, fp);
 			fclose(fp);
 		break;
 	}

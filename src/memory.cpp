@@ -143,8 +143,8 @@ void utilReadDataMem(const uint8_t *& data, variable_desc *desc)
 #define FLASH_PROGRAM            8
 #define FLASH_SETBANK            9
 
-extern uint8_t libretro_save_buf[0x20000 + 0x2000];
-uint8_t *flashSaveMemory = libretro_save_buf;
+extern uint8_t save_buf[0x20000 + 0x2000];
+uint8_t *flashSaveMemory = save_buf;
 
 int flashState = FLASH_READ_ARRAY;
 int flashReadState = FLASH_READ_ARRAY;
@@ -350,8 +350,8 @@ int eepromBits = 0;
 int eepromAddress = 0;
 
 // Workaround for broken-by-design GBA save semantics.
-extern u8 libretro_save_buf[0x20000 + 0x2000];
-u8 *eepromData = libretro_save_buf + 0x20000;
+extern u8 save_buf[0x20000 + 0x2000];
+u8 *eepromData = save_buf + 0x20000;
 
 u8 eepromBuffer[16];
 bool eepromInUse = false;
