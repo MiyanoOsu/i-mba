@@ -11,7 +11,7 @@ VPATH = ./src
 
 CFLAGS = -Iinclude -Ofast -flto -fno-common -Wall -std=gnu++11 \
 	-DLSB_FIRST -DINLINE="inline" -DWANT_16BPP -DFRONTEND_SUPPORTS_RGB565 \
-	-DNDEBUG -DWANT_STEREO_SOUND -DVIRTUAL_SURFACE  \
+	-DNDEBUG -DWANT_STEREO_SOUND -DVIRTUAL_SURFACE \
 	`/usr/bin/sdl-config --cflags`
 
 ASFLAGS = 

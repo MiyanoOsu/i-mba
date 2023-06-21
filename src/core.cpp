@@ -30,7 +30,7 @@ char GameName_emu[256];
 uint32_t frames = 0 ;
 uint32_t done = 0;
 
-char filename_bios[0x100] = {0};
+char filename_bios[0x100];
 
 uint8_t save_buf[0x20000 + 0x2000];	/* Workaround for broken-by-design GBA save semantics. */
 
@@ -233,9 +233,14 @@ static void load_image_preferences (void)
 		mirroringEnable = gbaover[found_no].mirroringEnabled;
 	}
 }
-
+char home_path[256];
 static void gba_init(void)
 {
+   if (useBios) {
+        snprintf(filename_bios, sizeof(filename_bios), "%s/.alpha/gba_bios.bin", getenv("HOME"));
+        printf("Loading bios: %s\n", filename_bios);
+   }
+   CPUInit(filename_bios, useBios);
    cpuSaveType = 0;
    flashSize = 0x10000;
    enableRtc = 0;
@@ -292,7 +297,7 @@ void gba_run(void)
 
 }
 
-void alpha_cheat_reset(void)
+void gba_cheat_reset(void)
 {
    cheatsDeleteAll(0);
 }
@@ -302,7 +307,7 @@ void alpha_cheat_reset(void)
    ((code[cursor] >= 'a') && (code[cursor] <= 'f')) || \
    ((code[cursor] >= 'A') && (code[cursor] <= 'F')) \
 
-void alpha_cheat_set(unsigned index, uint_fast8_t enabled, const char *code)
+void gba_cheat_set(unsigned index, uint_fast8_t enabled, const char *code)
 {
    char name[128];
    unsigned cursor;
