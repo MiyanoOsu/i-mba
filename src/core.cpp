@@ -233,7 +233,7 @@ static void load_image_preferences (void)
 		mirroringEnable = gbaover[found_no].mirroringEnabled;
 	}
 }
-char home_path[256];
+
 static void gba_init(void)
 {
    if (useBios) {

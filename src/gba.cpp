@@ -9,7 +9,6 @@
 
 #include "system.h"
 #include "globals.h"
-#include "ereader.h"
 
 #include "port.h"
 #include "gba.h"
