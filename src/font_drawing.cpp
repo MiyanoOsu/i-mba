@@ -4,7 +4,6 @@
 
 #include "video_blit.h"
 #include "font_drawing.h"
-#include "font_menudata.h"
 
 extern int32_t screen_width;
 //#define setPixel(buffer, x,y,c) 
