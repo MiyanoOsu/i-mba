@@ -24,6 +24,17 @@ LDFLAGS = -Ofast -march=armv5te -mtune=arm926ej-s -marm \
 	  -fno-unwind-tables -fno-asynchronous-unwind-tables -fno-unroll-loops -fmerge-all-constants \
 	  -lc -lgcc -lm -lSDL -lasound -lz -pthread -flto -Wl,--as-needed -Wl,--gc-sections  
 
+#PGO = YES
+PGO = APPLY
+
+ifeq ($(PGO), YES)
+CFLAGS += -fprofile-generate=./profile
+LDFLAGS += -lgcov -fprofile-generate=./profile
+TARGET = alpha_pm
+else ifeq ($(PGO), APPLY)
+CFLAGS += -fprofile-use=./ -fbranch-probabilities
+endif
+
 all: $(TARGET)
 
 $(TARGET): $(OBJS)

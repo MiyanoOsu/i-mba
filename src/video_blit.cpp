@@ -75,11 +75,12 @@ void Set_Video_InGame()
 
 void Clean_Video()
 {
-	for(uint_fast8_t i=0;i<3;i++)
-	{
-		SDL_FillRect(sdl_screen, NULL, 0);
-		SDL_Flip(sdl_screen);
-	}	
+	SDL_FillRect(sdl_screen, NULL, 0);
+	SDL_Flip(sdl_screen);
+	SDL_FillRect(sdl_screen, NULL, 0);
+	SDL_Flip(sdl_screen);
+	SDL_FillRect(sdl_screen, NULL, 0);
+	SDL_Flip(sdl_screen);	
 }
 
 void Close_Video()

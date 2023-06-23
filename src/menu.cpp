@@ -375,7 +375,7 @@ void Menu()
 	
 		print_string("Quit", (currentselection == EXIT_NUMBER) ? TextRed : TextWhite, 0, 5, 145-IPU_OFFSET_Y, (uint16_t*) backbuffer->pixels);
 		
-		print_string("Credits: MiyanoOsu", TextWhite, 0, 5, 225, (uint16_t*) backbuffer->pixels);
+		print_string("Port for miyoo by MiyanoOsu", TextWhite, 0, 5, 225, (uint16_t*) backbuffer->pixels);
 
         while (SDL_PollEvent(&Event))
         {

@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include <common_api.h>
+#include <config.h>
 
 BEGIN_DECLS
 

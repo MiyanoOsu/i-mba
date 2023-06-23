@@ -21,7 +21,6 @@
 #include "input.h"
 #include "menu.h"
 #include "config.h"
-#include "shared.h"
 
 extern uint64_t joy;
 unsigned device_type = 0;
