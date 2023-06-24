@@ -437,7 +437,7 @@ void SaveState(char* tmp, uint_fast8_t load)
 
 int main(int argc, char* argv[])
 {	
-    printf("Starting project Alpha\n");
+    //printf("Starting project Alpha\n");
     
     if (argc < 2)
 	{
@@ -468,7 +468,9 @@ int main(int argc, char* argv[])
 	
 	while(!done)
 	{
-		switch(emulator_state)
+		if (emulator_state == 0 ) {gba_run();}
+		if (emulator_state == 1 ) {Menu();}
+		/*switch(emulator_state)
 		{
 			case 0:
 				gba_run();
@@ -476,7 +478,7 @@ int main(int argc, char* argv[])
 			case 1:
 				Menu();
 			break;
-		}
+		}*/
 	}
 	
 	gba_deinit();

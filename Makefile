@@ -16,7 +16,7 @@ CFLAGS = -Iinclude -O3 -flto -fno-common -Wall -std=gnu++11 \
 
 ASFLAGS = 
 
-LDFLAGS = -flto -lc -lgcc -lm -lSDL -lasound -lz -flto -Wl,--as-needed -Wl,--gc-sections 
+LDFLAGS = -lc -lgcc -lm -lSDL -lasound -lz -flto -Wl,--as-needed -Wl,--gc-sections 
 
 all: $(TARGET)
 
