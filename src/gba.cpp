@@ -203,13 +203,13 @@ static void hardware_reset() {
 	} \
 }
 
-static INLINE u32 gfxIncreaseBrightness(u32 color, int coeff) {
+static inline u32 gfxIncreaseBrightness(u32 color, int coeff) {
 	color = (((color & 0xffff) << 16) | (color & 0xffff)) & 0x3E07C1F;
 	color += ((((0x3E07C1F - color) * coeff) >> 4) & 0x3E07C1F);
 	return (color >> 16) | color;
 }
 
-static INLINE u32 gfxDecreaseBrightness(u32 color, int coeff) {
+static inline u32 gfxDecreaseBrightness(u32 color, int coeff) {
 	color = (((color & 0xffff) << 16) | (color & 0xffff)) & 0x3E07C1F;
 	color -= (((color * coeff) >> 4) & 0x3E07C1F);
 	return (color >> 16) | color;
@@ -426,7 +426,7 @@ static uint16_t io_registers[1024 * 16];
 // Fast implementation of ternary operator.
 // Implemented as a function (as opposed to a macro) to avoid
 // evaluating the parameters more than once.
-uint32_t FORCE_INLINE SELECT(bool condition, uint32_t ifTrue, uint32_t ifFalse)
+uint32_t inline SELECT(bool condition, uint32_t ifTrue, uint32_t ifFalse)
 {
 	// Will be 0 if condition==true or 0xFFFFFFFF
 	// if condition==false.
@@ -550,7 +550,7 @@ static int gbaSaveType = 0; // used to remember the save type on reset
 #define DATATICKS_ACCESS_16BIT_SEQ(address) (memoryWaitSeq[(address >> 24) & 15])
 
 // Waitstates when executing opcode
-static INLINE int codeTicksAccess(u32 address, u8 bit32) // THUMB NON SEQ
+static inline int codeTicksAccess(u32 address, u8 bit32) // THUMB NON SEQ
 {
 	int addr, ret;
 
@@ -579,7 +579,7 @@ static INLINE int codeTicksAccess(u32 address, u8 bit32) // THUMB NON SEQ
 	return ret;
 }
 
-static INLINE int codeTicksAccessSeq16(u32 address) // THUMB SEQ
+static inline int codeTicksAccessSeq16(u32 address) // THUMB SEQ
 {
 	int addr = (address>>24) & 15;
 
@@ -602,7 +602,7 @@ static INLINE int codeTicksAccessSeq16(u32 address) // THUMB SEQ
 	return memoryWaitSeq[addr];
 }
 
-static INLINE int codeTicksAccessSeq32(u32 address) // ARM SEQ
+static inline int codeTicksAccessSeq32(u32 address) // ARM SEQ
 {
 	int addr = (address>>24)&15;
 
@@ -663,7 +663,7 @@ static bool cpuDmaRunning = false;
 
 static const uint32_t  objTilesAddress [3] = {0x010000, 0x014000, 0x014000};
 
-static INLINE u32 CPUReadMemory(u32 address)
+static inline u32 CPUReadMemory(u32 address)
 {
 	u32 value;
 	switch(address >> 24)
@@ -755,7 +755,7 @@ unreadable:
 	return value;
 }
 
-static INLINE u32 CPUReadHalfWord(u32 address)
+static inline u32 CPUReadHalfWord(u32 address)
 {
 	u32 value;
 
@@ -864,7 +864,7 @@ unreadable:
 	return value;
 }
 
-static INLINE u16 CPUReadHalfWordSigned(u32 address)
+static inline u16 CPUReadHalfWordSigned(u32 address)
 {
 	u16 value = CPUReadHalfWord(address);
 	if((address & 1))
@@ -872,7 +872,7 @@ static INLINE u16 CPUReadHalfWordSigned(u32 address)
 	return value;
 }
 
-static INLINE u8 CPUReadByte(u32 address)
+static inline u8 CPUReadByte(u32 address)
 {
 	switch(address >> 24)
 	{
@@ -944,7 +944,7 @@ unreadable:
 	}
 }
 
-static INLINE void CPUWriteMemory(u32 address, u32 value)
+static inline void CPUWriteMemory(u32 address, u32 value)
 {
 	switch(address >> 24)
 	{
@@ -993,7 +993,7 @@ static INLINE void CPUWriteMemory(u32 address, u32 value)
 	}
 }
 
-static INLINE void CPUWriteHalfWord(u32 address, u16 value)
+static inline void CPUWriteHalfWord(u32 address, u16 value)
 {
 	switch(address >> 24)
 	{
@@ -1050,7 +1050,7 @@ static INLINE void CPUWriteHalfWord(u32 address, u16 value)
 	}
 }
 
-static INLINE void CPUWriteByte(u32 address, u8 b)
+static inline void CPUWriteByte(u32 address, u8 b)
 {
 	switch(address >> 24)
 	{
@@ -4586,7 +4586,7 @@ static insnfunc_t armInsnTable[4096] =
 };
 
 // Emulates the Cheat System (m) code
-static INLINE void cpuMasterCodeCheck()
+static inline void cpuMasterCodeCheck()
 {
    if((mastercode) && (mastercode == bus.armNextPC))
    {
@@ -6828,7 +6828,7 @@ static inline void gfxDrawTextScreen(u16 control, u16 hofs, u16 vofs)
 
 static u32 map_sizes_rot[] = { 128, 256, 512, 1024 };
 
-static INLINE void fetchDrawRotScreen(u16 control, u16 x_l, u16 x_h, u16 y_l, u16 y_h, u16 pa, u16 pb, u16 pc, u16 pd, int& currentX, int& currentY, int changed)
+static inline void fetchDrawRotScreen(u16 control, u16 x_l, u16 x_h, u16 y_l, u16 y_h, u16 pa, u16 pb, u16 pc, u16 pd, int& currentX, int& currentY, int changed)
 {
 #ifdef BRANCHLESS_GBA_GFX
 	int dx = pa & 0x7FFF;
@@ -6879,7 +6879,7 @@ static INLINE void fetchDrawRotScreen(u16 control, u16 x_l, u16 x_h, u16 y_l, u1
 	}
 }
 
-static INLINE void fetchDrawRotScreen16Bit( int& currentX,  int& currentY, int changed)
+static inline void fetchDrawRotScreen16Bit( int& currentX,  int& currentY, int changed)
 {
 #ifdef BRANCHLESS_GBA_GFX
 	int dx = io_registers[REG_BG2PA] & 0x7FFF;
@@ -6929,7 +6929,7 @@ static INLINE void fetchDrawRotScreen16Bit( int& currentX,  int& currentY, int c
 	}
 }
 
-static INLINE void fetchDrawRotScreen256(int &currentX, int& currentY, int changed)
+static inline void fetchDrawRotScreen256(int &currentX, int& currentY, int changed)
 {
 #ifdef BRANCHLESS_GBA_GFX
 	int dx = io_registers[REG_BG2PA] & 0x7FFF;
@@ -6979,7 +6979,7 @@ static INLINE void fetchDrawRotScreen256(int &currentX, int& currentY, int chang
 	}
 }
 
-static INLINE void fetchDrawRotScreen16Bit160(int& currentX, int& currentY, int changed)
+static inline void fetchDrawRotScreen16Bit160(int& currentX, int& currentY, int changed)
 {
 #ifdef BRANCHLESS_GBA_GFX
 	int dx = io_registers[REG_BG2PA] & 0x7FFF;
@@ -7030,7 +7030,7 @@ static INLINE void fetchDrawRotScreen16Bit160(int& currentX, int& currentY, int 
 }
 
 template<int layer, int renderer_idx>
-static INLINE void gfxDrawRotScreen(u16 control, u16 x_l, u16 x_h, u16 y_l, u16 y_h,
+static inline void gfxDrawRotScreen(u16 control, u16 x_l, u16 x_h, u16 y_l, u16 y_h,
 u16 pa,  u16 pb, u16 pc,  u16 pd, int& currentX, int& currentY, int changed)
 {
 	INIT_RENDERER_CONTEXT(renderer_idx);
@@ -7218,7 +7218,7 @@ u16 pa,  u16 pb, u16 pc,  u16 pd, int& currentX, int& currentY, int changed)
 }
 
 template<int renderer_idx>
-static INLINE void gfxDrawRotScreen16Bit( int& currentX,  int& currentY, int changed)
+static inline void gfxDrawRotScreen16Bit( int& currentX,  int& currentY, int changed)
 {
 	INIT_RENDERER_CONTEXT(renderer_idx);
 
@@ -7317,7 +7317,7 @@ static INLINE void gfxDrawRotScreen16Bit( int& currentX,  int& currentY, int cha
 }
 
 template<int renderer_idx>
-static INLINE void gfxDrawRotScreen256(int &currentX, int& currentY, int changed)
+static inline void gfxDrawRotScreen256(int &currentX, int& currentY, int changed)
 {
 	INIT_RENDERER_CONTEXT(renderer_idx);
 
@@ -7419,7 +7419,7 @@ static INLINE void gfxDrawRotScreen256(int &currentX, int& currentY, int changed
 }
 
 template<int renderer_idx>
-static INLINE void gfxDrawRotScreen16Bit160(int& currentX, int& currentY, int changed)
+static inline void gfxDrawRotScreen16Bit160(int& currentX, int& currentY, int changed)
 {
 	INIT_RENDERER_CONTEXT(renderer_idx);
 
@@ -8607,7 +8607,7 @@ static variable_desc saveGameStruct[] = {
 	{ NULL, 0 }
 };
 
-static INLINE int CPUUpdateTicks (void)
+static inline int CPUUpdateTicks (void)
 {
 	int cpuLoopTicks = graphics.lcdTicks;
 
