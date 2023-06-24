@@ -16,21 +16,8 @@
 #include "sound.h"
 #include "ereader.h"
 
-#ifdef ELF
-#include "elf.h"
-#endif
-
 #ifdef HAVE_NEON
 #include "neon.h"
-#endif
-
-#if defined USE_MMAP
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-static FILE* MappedFile = NULL;
-static size_t MappedFileSize;
 #endif
 
 #define DEBUG_RENDERER_MODE0 1
@@ -289,9 +276,12 @@ static bool N_FLAG = 0;
 static bool C_FLAG = 0;
 static bool Z_FLAG = 0;
 static bool V_FLAG = 0;
+static bool C_OUT = 0;
 static bool armState = true;
 static bool armIrqEnable = true;
 static uint32_t armMode = 0x1f;
+static int dest;
+static int acc;
 
 typedef enum
 {
@@ -2490,8 +2480,8 @@ static void armUnknownInsn(u32 opcode)
 
 #ifndef ALU_INIT_C
  #define ALU_INIT_C \
-    int dest = (opcode>>12) & 15;                       \
-    bool C_OUT = C_FLAG;                                \
+    dest = (opcode>>12) & 15;                       \
+    C_OUT = C_FLAG;                                \
     u32 value;
 #endif
 // OP Rd,Rb,Rm LSL #
@@ -2988,8 +2978,8 @@ DEFINE_ALU_INSN_C (1F, 3F, MVNS, YES)
 #define MUL_INSN(OP, SETCOND, CYCLES) \
     int mult = (opcode & 0x0F);                         \
     u32 rs = bus.reg[(opcode >> 8) & 0x0F].I;               \
-    int acc = (opcode >> 12) & 0x0F;   /* or destLo */  \
-    int dest = (opcode >> 16) & 0x0F;  /* or destHi */  \
+    acc = (opcode >> 12) & 0x0F;   /* or destLo */  \
+    dest = (opcode >> 16) & 0x0F;  /* or destHi */  \
     OP;                                                 \
     SETCOND;                                            \
     if ((s32)rs < 0)                                    \
@@ -3297,7 +3287,7 @@ static  void arm121(u32 opcode)
 #define LDRSTR_INIT(CALC_OFFSET, CALC_ADDRESS) \
     if (bus.busPrefetchCount == 0)                          \
         bus.busPrefetch = bus.busPrefetchEnable;                \
-    int dest = (opcode >> 12) & 15;                     \
+    dest = (opcode >> 12) & 15;                     \
     int base = (opcode >> 16) & 15;                     \
     CALC_OFFSET;                                        \
     u32 address = CALC_ADDRESS;
@@ -5000,7 +4990,7 @@ static  void thumbUnknownInsn(u32 opcode)
 #endif
 #ifndef IMM5_INSN
  #define IMM5_INSN(OP,N) \
-  int dest = opcode & 0x07;\
+  dest = opcode & 0x07;\
   int source = (opcode >> 3) & 0x07;\
   u32 value;\
   OP(N);\
@@ -5008,7 +4998,7 @@ static  void thumbUnknownInsn(u32 opcode)
   N_FLAG = (value & 0x80000000 ? true : false);\
   Z_FLAG = (value ? false : true);
  #define IMM5_INSN_0(OP) \
-  int dest = opcode & 0x07;\
+  dest = opcode & 0x07;\
   int source = (opcode >> 3) & 0x07;\
   u32 value;\
   OP;\
@@ -5040,7 +5030,7 @@ static  void thumbUnknownInsn(u32 opcode)
 #endif
 #ifndef THREEARG_INSN
  #define THREEARG_INSN(OP,N) \
-  int dest = opcode & 0x07;          \
+  dest = opcode & 0x07;          \
   int source = (opcode >> 3) & 0x07; \
   OP(N);
 #endif
@@ -8826,49 +8816,13 @@ static bool CPUIsGBABios(const char * file)
 	return false;
 }
 
-#ifdef ELF
-static bool CPUIsELF(const char *file)
-{
-	if(file == NULL)
-		return false;
-
-	if(strlen(file) > 4)
-	{
-		const char * p = strrchr(file,'.');
-
-		if(p != NULL)
-		{
-			if(strcasecmp(p, ".elf") == 0)
-				return true;
-		}
-	}
-	return false;
-}
-#endif
-
 void CPUCleanUp (void)
 {
-#if defined USE_MMAP
-	if (cpuIsMultiBoot == 1)
-	{
-		if(rom != NULL) {
-			memalign_free(rom);
-			rom = NULL;
-		}
-	}
-	else
-	{
-		munmap(rom, MappedFileSize);
-		if (MappedFile) fclose(MappedFile);
-		MappedFile = NULL;
-		MappedFileSize = 0;
-	}
-#else
 	if(rom != NULL) {
 		memalign_free(rom);
 		rom = NULL;
 	}
-#endif
+
 	if(vram != NULL) {
 		memalign_free(vram);
 		vram = NULL;
@@ -9005,46 +8959,6 @@ int CPULoadRom(char * file)
 	
 	uint8_t *whereToLoad = cpuIsMultiBoot ? workRAM : rom;
 
-#if defined USE_MMAP
-	MappedFile = fopen(file,"rb");
-	if (!MappedFile)
-	{
-		systemMessage("Failed to map memory region\n");
-		return 0;
-	}
-	
-	/* Go to end */
-	fseek(MappedFile, 0, SEEK_END);
-	
-	/* Get position at end (length) */
-	romSize = ftell(MappedFile);
-	MappedFileSize = romSize;
-	fseek(MappedFile, 0, SEEK_SET);
-
-	if (cpuIsMultiBoot == 0)
-	{
-		rom = (uint8_t*)mmap(NULL, romSize, PROT_READ, MAP_PRIVATE, fileno(MappedFile), 0);
-		if (rom == MAP_FAILED)
-		{
-			systemMessage("Failed to map memory region\n");
-			return 0;
-		}
-	}
-	else
-	{
-		fclose(MappedFile);
-		if(!utilLoad(file,
-					utilIsGBAImage,
-					whereToLoad,
-					romSize)) {
-			memalign_free(rom);
-			rom = NULL;
-			memalign_free(workRAM);
-			workRAM = NULL;
-			return 0;
-		}
-	}
-#else
 	if(file != NULL)
 	{
 		if(!utilLoad(file,
@@ -9058,7 +8972,6 @@ int CPULoadRom(char * file)
 			return 0;
 		}
 	}
-#endif
 
 	//load cartridge code
 	memcpy(cartridgeCode, whereToLoad + 0xAC, 4);
