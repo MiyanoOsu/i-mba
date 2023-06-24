@@ -222,7 +222,7 @@ class Gb_Wave : public Gb_Osc
 	INLINE CLASS FUNCS
 ============================================================ */
 
-INLINE void Blip_Synth::offset_resampled( uint32_t time, int delta, Blip_Buffer* blip_buf ) const
+inline void Blip_Synth::offset_resampled( uint32_t time, int delta, Blip_Buffer* blip_buf ) const
 {
 	int32_t left, right, phase;
 	int32_t *buf;
@@ -242,12 +242,12 @@ INLINE void Blip_Synth::offset_resampled( uint32_t time, int delta, Blip_Buffer*
 	buf [1] = right;
 }
 
-INLINE void Blip_Synth::offset( int32_t t, int delta, Blip_Buffer* buf ) const
+inline void Blip_Synth::offset( int32_t t, int delta, Blip_Buffer* buf ) const
 {
         offset_resampled( t * buf->factor_ + buf->offset_, delta, buf );
 }
 
-INLINE int Gb_Wave::read( unsigned addr ) const
+inline int Gb_Wave::read( unsigned addr ) const
 {
 	int index;
 
@@ -261,7 +261,7 @@ INLINE int Gb_Wave::read( unsigned addr ) const
 	return (index < 0 ? 0xFF : wave_bank[index]);
 }
 
-INLINE void Gb_Wave::write( unsigned addr, int data )
+inline void Gb_Wave::write( unsigned addr, int data )
 {
 	int index;
 
@@ -550,7 +550,7 @@ static void gb_apu_run_until_( int32_t end_time )
 	}while(1);
 }
 
-INLINE void Gb_Sweep_Square::write_register( int frame_phase, int reg, int old_data, int data )
+inline void Gb_Sweep_Square::write_register( int frame_phase, int reg, int old_data, int data )
 {
         if ( reg == 0 && sweep_enabled && sweep_neg && !(data & 0x08) )
                 enabled = false; // sweep negate disabled after used
@@ -566,7 +566,7 @@ INLINE void Gb_Sweep_Square::write_register( int frame_phase, int reg, int old_d
         }
 }
 
-INLINE void Gb_Wave::write_register( int frame_phase, int reg, int old_data, int data )
+inline void Gb_Wave::write_register( int frame_phase, int reg, int old_data, int data )
 {
         switch ( reg )
 	{
@@ -590,7 +590,7 @@ INLINE void Gb_Wave::write_register( int frame_phase, int reg, int old_data, int
 	}
 }
 
-INLINE void Gb_Noise::write_register( int frame_phase, int reg, int old_data, int data )
+inline void Gb_Noise::write_register( int frame_phase, int reg, int old_data, int data )
 {
         if ( Gb_Env::write_register( frame_phase, reg, old_data, data ) )
         {
@@ -619,7 +619,7 @@ static void gb_apu_write_osc( int index, int reg, int old_data, int data )
 	}
 }
 
-static INLINE int gb_apu_calc_output( int osc )
+static inline int gb_apu_calc_output( int osc )
 {
 	int bits = gb_apu.regs [STEREO_REG - START_ADDR] >> osc;
 	return (bits >> 3 & 2) | (bits & 1);
@@ -818,7 +818,7 @@ static void gb_apu_apply_stereo (void)
 
 #define REFLECT( x, y ) (save ?       (io->y) = (x) :         (x) = (io->y)          )
 
-static INLINE const char* gb_apu_save_load( gb_apu_state_t* io, bool save )
+static inline const char* gb_apu_save_load( gb_apu_state_t* io, bool save )
 {
 	int format, version;
 
@@ -853,7 +853,7 @@ static INLINE const char* gb_apu_save_load( gb_apu_state_t* io, bool save )
 }
 
 /* second function to avoid inline limits of some compilers*/
-static INLINE void gb_apu_save_load2( gb_apu_state_t* io, bool save )
+static inline void gb_apu_save_load2( gb_apu_state_t* io, bool save )
 {
 	int i;
 	for ( i = OSC_COUNT; --i >= 0; )
@@ -913,7 +913,7 @@ void Gb_Osc::reset()
         enabled  = false;
 }
 
-INLINE void Gb_Osc::update_amp( int32_t time, int new_amp )
+inline void Gb_Osc::update_amp( int32_t time, int new_amp )
 {
 	int delta = new_amp - last_amp;
         if ( delta )
@@ -932,7 +932,7 @@ void Gb_Osc::clock_length()
         }
 }
 
-INLINE int Gb_Env::reload_env_timer()
+inline int Gb_Env::reload_env_timer()
 {
         int raw = regs [2] & 7;
         env_delay = (raw ? raw : 8);
@@ -1023,7 +1023,7 @@ int Gb_Osc::write_trig( int frame_phase, int max_len, int old_data )
         return data & TRIGGER_MASK;
 }
 
-INLINE void Gb_Env::zombie_volume( int old, int data )
+inline void Gb_Env::zombie_volume( int old, int data )
 {
 	int v = volume;
 
@@ -1582,7 +1582,7 @@ static void stereo_buffer_clear (void)
 /* mixers use a single index value to improve performance on register-challenged processors
  * offset goes from negative to zero*/
 
-static INLINE void stereo_buffer_mixer_read_pairs( int16_t* out, int count )
+static inline void stereo_buffer_mixer_read_pairs( int16_t* out, int count )
 {
 	/* TODO: if caller never marks buffers as modified, uses mono*/
 	/* except that buffer isn't cleared, so caller can encounter*/
