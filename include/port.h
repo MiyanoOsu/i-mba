@@ -32,11 +32,6 @@
 #define CONVERT_COLOR(color) ((((color & 0x1f) << 10) | (((color & 0x3e0) >> 5) << 5) | (((color & 0x7c00) >> 10))) & 0x7fff)
 #endif
 
-#ifdef _MSC_VER
-#include <stdlib.h>
-#define strcasecmp _stricmp
-#endif
-
 #ifdef USE_CACHE_PREFETCH
 #if defined(__ANDROID__)
 #define CACHE_PREFETCH(prefetch) prefetch(&prefetch);
@@ -72,8 +67,10 @@
 #define WRITE32LE(base, value) *((u32 *)(base)) = __builtin_bswap32((value))
 #endif
 #else
+#define READ8LE(x) *((u8 *)(x))
 #define READ16LE(x) *((u16 *)(x))
 #define READ32LE(x) *((u32 *)(x))
+#define WRITE8LE(x,v) *((u8 *)(x)) = (v)
 #define WRITE16LE(x,v) *((u16 *)(x)) = (v)
 #define WRITE32LE(x,v) *((u32 *)(x)) = (v)
 #endif
