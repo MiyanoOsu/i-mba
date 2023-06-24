@@ -16,7 +16,7 @@ CFLAGS = -Iinclude -march=armv5te -mtune=arm926ej-s -O3 -flto -fno-common -Wall 
 
 ASFLAGS = -march=armv5te -mtune=arm926ej-s -marm
 
-LDFLAGS = -march=armv5te -mtune=arm926ej-s -marm -flto \
+LDFLAGS = -march=armv5te -mtune=arm926ej-s -marm  \
 	  -lc -lgcc -lm -lSDL -lasound -lz -flto -Wl,--as-needed -Wl,--gc-sections  
 
 #PGO = YES
