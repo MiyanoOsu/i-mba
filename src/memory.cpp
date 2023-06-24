@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "gba.h"
@@ -818,3 +819,25 @@ void rtcReadGameMem(const uint8_t *& data)
 	utilReadMem(&rtcClockData, data, sizeof(rtcClockData));
 }
 
+/*============================================================
+	ALIGNED MEMORY
+============================================================ */
+
+void *memalign_alloc(size_t size)
+{
+   void *ptr  = (void*)malloc(32 + size + sizeof(uintptr_t));
+   if (!ptr) return NULL;
+
+   uintptr_t addr = ((uintptr_t)ptr + sizeof(uintptr_t) + 32) & ~(32 - 1);
+   void **place   = (void**)addr;
+   place[-1]      = ptr;
+
+   return (void*)addr;
+}
+
+void memalign_free(void *ptr)
+{
+   if (!ptr) return;
+   void ** p = (void**)ptr;
+   free(p[-1]);
+}

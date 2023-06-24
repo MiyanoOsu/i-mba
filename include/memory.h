@@ -72,4 +72,7 @@ int utilReadIntMem(const uint8_t *& data);
 void utilReadMem(void *buf, const uint8_t *& data, unsigned size);
 void utilReadDataMem(const uint8_t *& data, variable_desc *);
 
+void *memalign_alloc(size_t size);
+void memalign_free(void *ptr);
+
 #endif // GBA_MEMORY_H

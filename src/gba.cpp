@@ -4,7 +4,6 @@
 #include <string.h>
 #include <math.h>
 #include <stddef.h>
-#include <memalign.h>
 #include <time.h>
 
 #include "system.h"
@@ -663,7 +662,7 @@ static inline u32 CPUReadMemory(u32 address)
 			if(bus.reg[15].I >> 24)
 			{
 				if(address < 0x4000)
-					value = READ32LE(((u32 *)&biosProtected));
+					value = READ8LE(((u8 *)&biosProtected));
 				else goto unreadable;
 			}
 			else
@@ -7516,7 +7515,7 @@ static void gfxDrawSprites (void)
 {
 	INIT_RENDERER_CONTEXT(renderer_idx);
 
-	unsigned lineOBJpix, m;
+	int lineOBJpix, m;
 
 	lineOBJpix = (RENDERER_IO_REGISTERS[REG_DISPCNT] & 0x20) ? 954 : 1226;
 	m = 0;
@@ -8875,17 +8874,17 @@ bool CPUSetupBuffers()
 
 	//systemSaveUpdateCounter = SYSTEM_SAVE_NOT_UPDATED;
 
-	rom = (uint8_t *)memalign_alloc_aligned(0x2000000);
-	workRAM = (uint8_t *)memalign_alloc_aligned(0x40000);
-	bios = (uint8_t *)memalign_alloc_aligned(0x4000);
-	internalRAM = (uint8_t *)memalign_alloc_aligned(0x8000);
-	paletteRAM = (uint8_t *)memalign_alloc_aligned(0x400);
-	vram = (uint8_t *)memalign_alloc_aligned(0x20000);
-	oam = (uint8_t *)memalign_alloc_aligned(0x400);
+	rom = (uint8_t *)memalign_alloc(0x2000000);
+	workRAM = (uint8_t *)memalign_alloc(0x40000);
+	bios = (uint8_t *)memalign_alloc(0x4000);
+	internalRAM = (uint8_t *)memalign_alloc(0x8000);
+	paletteRAM = (uint8_t *)memalign_alloc(0x400);
+	vram = (uint8_t *)memalign_alloc(0x20000);
+	oam = (uint8_t *)memalign_alloc(0x400);
 	#ifdef VIRTUAL_SURFACE
-	pix = (uint16_t *)memalign_alloc_aligned(2 * PIX_BUFFER_SCREEN_WIDTH * 160);
+	pix = (uint16_t *)memalign_alloc(2 * PIX_BUFFER_SCREEN_WIDTH * 160);
 	#endif
-	ioMem = (uint8_t *)memalign_alloc_aligned(0x400);
+	ioMem = (uint8_t *)memalign_alloc(0x400);
 
 	memset(rom, 0, 0x2000000);
 	memset(workRAM, 1, 0x40000);
@@ -14463,10 +14462,10 @@ void cheatsAddGSACode(const char *code, const char *desc, bool v3)
   if(value == 0x1DC0DE) {
     u32 gamecode = READ32LE(((u32 *)&rom[0xac]));
     if(gamecode != address) {
-      char buffer[5];
+      u32 buffer[5];
       *((u32 *)buffer) = address;
       buffer[4] = 0;
-      char buffer2[5];
+      u32 buffer2[5];
       *((u32 *)buffer2) = READ32LE(((u32 *)&rom[0xac]));
       buffer2[4] = 0;
       systemMessage("Warning: cheats are for game %s. Current game is %s.\nCodes may not work correctly.",
@@ -15165,9 +15164,9 @@ void cheatsCBAChangeEncryption(u32 *seed)
   cheatsCBASeed[0] = cheatsCBAEncWorker();
   cheatsCBASeed[1] = cheatsCBAEncWorker();
 
-  *((u32 *)&cheatsCBACurrentSeed[0]) = seed[6];
-  *((u32 *)&cheatsCBACurrentSeed[4]) = seed[7];
-  *((u32 *)&cheatsCBACurrentSeed[8]) = 0;
+  *((u8 *)&cheatsCBACurrentSeed[0]) = seed[6];
+  *((u8 *)&cheatsCBACurrentSeed[4]) = seed[7];
+  *((u8 *)&cheatsCBACurrentSeed[8]) = 0;
 }
 
 u16 cheatsCBAGenValue(u32 x, u32 y, u32 z)
@@ -15345,8 +15344,8 @@ void cheatsAddCBACode(const char *code, const char *desc)
     if(cheatsCBAShouldDecrypt())
       cheatsCBADecrypt(array);
 
-    address = READ32LE(((u32 *)array));
-    value = READ16LE(((u16 *)&array[4]));
+    address = READ8LE(((u8 *)array));
+    value = READ8LE(((u8 *)&array[4]));
 
     int type = (address >> 28) & 15;
 
