@@ -19,7 +19,7 @@
 t_config option;
 uint32_t emulator_state = 0;
 
-static char home_path[256], save_path[256], eeprom_path[256], conf_path[256];
+static char home_path[64], save_path[64], eeprom_path[64], conf_path[64];
 static uint32_t controls_chosen = 0;
 
 extern SDL_Surface *sdl_screen;
@@ -32,16 +32,11 @@ static uint8_t save_slot = 0;
 
 #define IPU_OFFSET 0
 #define IPU_OFFSET_Y 0
-static const int8_t upscalers_available = 2
-
-#ifdef SCALE2X_UPSCALER
-+1
-#endif
-;
+static const int8_t upscalers_available = 2;
 
 static void SaveState_Menu(uint_fast8_t load_mode, uint_fast8_t slot)
 {
-	char tmp[512];
+	char tmp[128];
 	snprintf(tmp, sizeof(tmp), "%s/%s_%d.sts", save_path, GameName_emu, slot);
 	SaveState(tmp,load_mode);
 }
@@ -49,7 +44,7 @@ static void SaveState_Menu(uint_fast8_t load_mode, uint_fast8_t slot)
 void EEPROM_Menu(uint_fast8_t load_mode)
 {
 	extern void adjust_save_ram();
-	char tmp[512];
+	char tmp[128];
 	snprintf(tmp, sizeof(tmp), "%s/%s.eps", eeprom_path, GameName_emu);
 	adjust_save_ram();
 	EEPROM_file(tmp,load_mode);
@@ -57,7 +52,7 @@ void EEPROM_Menu(uint_fast8_t load_mode)
 
 static void config_load()
 {
-	char config_path[512];
+	char config_path[128];
 	FILE* fp;
 	snprintf(config_path, sizeof(config_path), "%s/%s.cfg", conf_path, GameName_emu);
 
@@ -94,7 +89,7 @@ static void config_load()
 static void config_save()
 {
 	FILE* fp;
-	char config_path[512];
+	char config_path[128];
 	snprintf(config_path, sizeof(config_path), "%s/%s.cfg", conf_path, GameName_emu);
 	
 	fp = fopen(config_path, "wb");
@@ -185,7 +180,7 @@ static const char* Return_Text_Button(uint32_t button)
 static void Input_Remapping()
 {
 	SDL_Event Event;
-	char text[50];
+	char text[35];
 	uint32_t pressed = 0;
 	int32_t currentselection = 1;
 	int32_t exit_input = 0;
@@ -328,7 +323,7 @@ static void Input_Remapping()
 
 void Menu()
 {
-	char text[50];
+    char text[35];
     int16_t pressed = 0;
     int16_t currentselection = 1;
     SDL_Event Event;
@@ -489,7 +484,6 @@ void Menu()
 void Init_Configuration()
 {
 	snprintf(home_path, sizeof(home_path), "%s/.alpha", getenv("HOME"));
-	
 	snprintf(conf_path, sizeof(conf_path), "%s/conf", home_path);
 	snprintf(save_path, sizeof(save_path), "%s/sstates", home_path);
 	snprintf(eeprom_path, sizeof(eeprom_path), "%s/eeprom", home_path);
