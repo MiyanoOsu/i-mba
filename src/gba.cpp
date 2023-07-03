@@ -6730,7 +6730,51 @@ static inline void gfxDrawTextScreen(u16 control, u16 hofs, u16 vofs)
   }
 
   int yshift = ((yyy>>3)<<5);
-  if((control) & 0x80) {
+    u16 *screenSource = screenBase + 0x400 * (xxx>>8) + ((xxx & 255)>>3) + yshift;
+	for(int x = 0; x < 240; x++) {
+		u16 data = READ16LE(screenSource);
+
+		int tile = data & 0x3FF;
+		int tileX = xxx & 7;
+		int tileY = yyy & 7;
+
+		if(tileX == 7)
+			screenSource++;
+
+		if(data & 0x0400)
+			tileX = 7 - tileX;
+		if(data & 0x0800)
+			tileY = 7 - tileY;
+		if((control) & 0x80) {
+			u8 color = charBase[(tile<<6) + (tileY<<3) + tileX];
+			RENDERER_LINE[layer][x] = color ? (READ16LE(&palette[color]) | prio): 0x80000000;
+		}
+		else {
+			u8 color = charBase[(tile<<5) + (tileY<<2) + (tileX>>1)];
+
+			if(tileX & 1) {
+				color = (color >> 4);
+			} else {
+				color &= 0x0F;
+			}
+
+			int pal = (data>>8) & 0xF0;
+			RENDERER_LINE[layer][x] = color ? (READ16LE(&palette[pal + color])|prio): 0x80000000;
+		}
+		xxx++;
+		if(xxx == 256) {
+			if(sizeX > 256)
+				screenSource = screenBase + 0x400 + yshift;
+			else {
+				screenSource = screenBase + yshift;
+				xxx = 0;
+			}
+		} else if(xxx >= sizeX) {
+			xxx = 0;
+			screenSource = screenBase + yshift;
+		}
+	}
+/*  if((control) & 0x80) {
     u16 *screenSource = screenBase + 0x400 * (xxx>>8) + ((xxx & 255)>>3) + yshift;
     for(int x = 0; x < 240; x++) {
       u16 data = READ16LE(screenSource);
@@ -6806,7 +6850,7 @@ static inline void gfxDrawTextScreen(u16 control, u16 hofs, u16 vofs)
         screenSource = screenBase + yshift;
       }
     }
-  }
+  }*/
   if(mosaicOn) {
     if(mosaicX > 1) {
       MOSAIC_LOOP(layer, mosaicX);
